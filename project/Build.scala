@@ -5,12 +5,13 @@ object SlickPgBuild extends Build {
 
   lazy val commonSettings = Seq(
     organizationName := "slick-pg",
-    organization := "com.github.tminglei",
+    organization := "uk.co.anyjunk",
     name := "slick-pg",
-    version := "0.14.2",
+    version := "0.15.1",
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
     scalaVersion := "2.11.8",
-    crossScalaVersions := Seq("2.11.8", "2.10.6"),
+    crossScalaVersions := Seq("2.11.8"/*, "2.12.0-M5"*/),
     scalacOptions ++= Seq("-deprecation", "-feature",
       "-language:implicitConversions",
       "-language:reflectiveCalls",
@@ -24,11 +25,11 @@ object SlickPgBuild extends Build {
     resolvers += "spray" at "http://repo.spray.io/",
 //    publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
     publishTo <<= version { (v: String) =>
-      val nexus = "https://oss.sonatype.org/"
+      val nexus = "http://192.168.60.88:8081/nexus/"
       if (v.trim.endsWith("SNAPSHOT"))
         Some("snapshots" at nexus + "content/repositories/snapshots")
       else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
+        Some("releases" at nexus + "content/repositories/releases")
     },
     publishMavenStyle := true,
     publishArtifact in Test := false,
@@ -67,8 +68,8 @@ object SlickPgBuild extends Build {
     }
     Seq (
       "org.scala-lang" % "scala-reflect" % scalaVersion,
-      "com.typesafe.slick" %% "slick" % "3.1.1",
-      "org.postgresql" % "postgresql" % "9.4-1201-jdbc41",
+      "com.typesafe.slick" %% "slick" % "3.2.0-M1",
+      "org.postgresql" % "postgresql" % "9.4.1209",
       "org.slf4j" % "slf4j-simple" % "1.7.12" % "provided",
       "org.scalatest" %% "scalatest" % "2.2.4" % "test"
     ) ++ extractedLibs
@@ -129,7 +130,7 @@ object SlickPgBuild extends Build {
       name := "slick-pg_play-json",
       description := "Slick extensions for PostgreSQL - play-json module",
       libraryDependencies := mainDependencies(scalaVersion.value) ++ Seq(
-        "com.typesafe.play" %% "play-json" % "2.4.3"
+        "com.typesafe.play" %% "play-json" % "2.5.4"
       )
     )
   ) dependsOn (slickPgCore)
@@ -149,9 +150,9 @@ object SlickPgBuild extends Build {
       name := "slick-pg_circe-json",
       description := "Slick extensions for PostgreSQL - circe module",
       libraryDependencies := mainDependencies(scalaVersion.value) ++ Seq(
-        "io.circe" %% "circe-core" % "0.3.0",
-        "io.circe" %% "circe-generic" % "0.3.0",
-        "io.circe" %% "circe-parser" % "0.3.0"
+        "io.circe" %% "circe-core" % "0.4.1",
+        "io.circe" %% "circe-generic" % "0.4.1",
+        "io.circe" %% "circe-parser" % "0.4.1"
       )
     )
   ) dependsOn (slickPgCore)
@@ -161,7 +162,7 @@ object SlickPgBuild extends Build {
       name := "slick-pg_argonaut",
       description := "Slick extensions for PostgreSQL - argonaut module",
       libraryDependencies := mainDependencies(scalaVersion.value) ++ Seq(
-        "io.argonaut" %% "argonaut" % "6.1"
+        "io.argonaut" %% "argonaut" % "6.2-M1"
       )
     )
   ) dependsOn (slickPgCore)

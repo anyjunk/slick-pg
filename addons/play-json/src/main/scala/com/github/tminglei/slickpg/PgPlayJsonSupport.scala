@@ -1,18 +1,28 @@
 package com.github.tminglei.slickpg
 
-import slick.driver.PostgresDriver
-import slick.jdbc.{JdbcType, PositionedResult}
+import slick.jdbc.{JdbcType, PositionedResult, PostgresProfile}
+import scala.reflect.classTag
 
-trait PgPlayJsonSupport extends json.PgJsonExtensions with utils.PgCommonJdbcTypes { driver: PostgresDriver =>
+trait PgPlayJsonSupport extends json.PgJsonExtensions with utils.PgCommonJdbcTypes { driver: PostgresProfile =>
   import driver.api._
   import play.api.libs.json._
 
+  ///---
   def pgjson: String
+  ///---
+
+  trait PlayJsonCodeGenSupport {
+    // register types to let `ExModelBuilder` find them
+    if (driver.isInstanceOf[ExPostgresProfile]) {
+      driver.asInstanceOf[ExPostgresProfile].bindPgTypeToScala("json", classTag[JsValue])
+      driver.asInstanceOf[ExPostgresProfile].bindPgTypeToScala("jsonb", classTag[JsValue])
+    }
+  }
 
   /// alias
   trait JsonImplicits extends PlayJsonImplicits
 
-  trait PlayJsonImplicits {
+  trait PlayJsonImplicits extends PlayJsonCodeGenSupport {
     implicit val playJsonTypeMapper: JdbcType[JsValue] =
       new GenericJdbcType[JsValue](
         pgjson,
@@ -30,16 +40,8 @@ trait PgPlayJsonSupport extends json.PgJsonExtensions with utils.PgCommonJdbcTyp
       }
   }
 
-  trait PlayJsonPlainImplicits {
+  trait PlayJsonPlainImplicits extends PlayJsonCodeGenSupport {
     import utils.PlainSQLUtils._
-
-    import scala.reflect.classTag
-
-    // used to support code gen
-    if (driver.isInstanceOf[ExPostgresDriver]) {
-      driver.asInstanceOf[ExPostgresDriver].bindPgTypeToScala("json", classTag[JsValue])
-      driver.asInstanceOf[ExPostgresDriver].bindPgTypeToScala("jsonb", classTag[JsValue])
-    }
 
     implicit class PgJsonPositionedResult(r: PositionedResult) {
       def nextJson() = nextJsonOption().getOrElse(JsNull)
