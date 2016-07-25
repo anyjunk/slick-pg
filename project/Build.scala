@@ -5,9 +5,10 @@ object SlickPgBuild extends Build {
 
   lazy val commonSettings = Seq(
     organizationName := "slick-pg",
-    organization := "com.github.tminglei",
+    organization := "uk.co.anyjunk",
     name := "slick-pg",
-    version := "0.15.0-M1",
+    version := "0.15.1",
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
 
     scalaVersion := "2.11.8",
     crossScalaVersions := Seq("2.11.8"/*, "2.12.0-M5"*/),
@@ -24,11 +25,11 @@ object SlickPgBuild extends Build {
     resolvers += "spray" at "http://repo.spray.io/",
 //    publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
     publishTo <<= version { (v: String) =>
-      val nexus = "https://oss.sonatype.org/"
+      val nexus = "http://192.168.60.88:8081/nexus/"
       if (v.trim.endsWith("SNAPSHOT"))
         Some("snapshots" at nexus + "content/repositories/snapshots")
       else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
+        Some("releases" at nexus + "content/repositories/releases")
     },
     publishMavenStyle := true,
     publishArtifact in Test := false,
@@ -161,7 +162,7 @@ object SlickPgBuild extends Build {
       name := "slick-pg_argonaut",
       description := "Slick extensions for PostgreSQL - argonaut module",
       libraryDependencies := mainDependencies(scalaVersion.value) ++ Seq(
-        "io.argonaut" %% "argonaut" % "6.1"
+        "io.argonaut" %% "argonaut" % "6.2-M1"
       )
     )
   ) dependsOn (slickPgCore)
